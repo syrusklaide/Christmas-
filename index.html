@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Klaide — Merry Christmas</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Fredoka+One&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin:0;
+      background: linear-gradient(270deg, #e5243b, #0a8754, #ffd166, #00d9ff);
+      background-size: 1000% 1000%;
+      animation: gradientShift 28s ease-in-out infinite;
+      font-family:'Fredoka One', sans-serif;
+      color:#fff;
+      text-align:center;
+      overflow-x:hidden;
+    }
+    @keyframes gradientShift {
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+    header h1 {
+      font-family:'Pacifico', cursive;
+      font-size:2.5rem;
+      margin-top:30px;
+      text-shadow:0 4px 12px rgba(0,0,0,0.4);
+    }
+    #message {
+      font-family:'Press Start 2P', monospace;
+      font-size:1rem;
+      line-height:1.6;
+      margin:20px auto;
+      max-width:800px;
+      min-height:160px;
+      background:rgba(255,255,255,0.08);
+      border-radius:16px;
+      padding:20px;
+      box-shadow:0 6px 20px rgba(0,0,0,0.4);
+    }
+    .btn {
+      background:#ffd166;
+      border:none;
+      border-radius:12px;
+      padding:12px 18px;
+      margin:10px;
+      font-family:'Fredoka One', sans-serif;
+      cursor:pointer;
+      box-shadow:0 6px 16px rgba(0,0,0,0.35);
+    }
+    .btn:hover {background:#00d9ff; color:#000}
+    .snowflake {
+      position:fixed;
+      top:-24px;
+      font-size:24px;
+      animation: fall linear infinite;
+      pointer-events:none;
+      z-index:0;
+    }
+    @keyframes fall {
+      0%{transform:translateY(-24px)}
+      100%{transform:translateY(100vh)}
+    }
+    .sparkle {
+      position:absolute;
+      font-size:20px;
+      animation: sparkleFade 1.2s ease-out forwards;
+      pointer-events:none;
+      z-index:5;
+    }
+    @keyframes sparkleFade {
+      0%{opacity:1; transform:scale(1)}
+      100%{opacity:0; transform:scale(2)}
+    }
+    #santa {
+      position:fixed;
+      bottom:10px;
+      left:-220px;
+      font-size:2rem;
+      display:none;
+      animation:santaRide 11s linear forwards;
+      z-index:10;
+    }
+    @keyframes santaRide {
+      0%{left:-220px;opacity:1}
+      55%{left:50%;transform:translateX(-50%);opacity:1}
+      100%{left:115%;opacity:0}
+    }
+    #game {
+      display:none;
+      margin:20px auto;
+      position:relative;
+      z-index:2;
+    }
+    #gameCanvas {
+      width:90vw; max-width:500px; height:90vw; max-height:500px;
+      background:rgba(0,0,35,0.35);
+      border-radius:16px;
+    }
+
+    /* Responsive Video Container */
+    .video-container {
+      position: relative;
+      width: 90vw;
+      max-width: 800px;
+      height: 0;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      margin: 20px auto;
+      background: rgba(0,0,0,0.2);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 16px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎄 Merry Christmas from Klaide 🎄</h1>
+  </header>
+
+  <div id="message"></div>
+
+  <!-- Responsive Video Embed -->
+  <div class="video-container">
+    <iframe 
+      src="https://www.youtube.com/embed/BDFCRcWTkw4?si=rrcxsUsiDt9BbMel" 
+      title="Feliz Navidad by Boney M" 
+      frameborder="0" 
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+      allowfullscreen>
+    </iframe>
+  </div>
+
+  <!-- Buttons -->
+  <button class="btn" onclick="showSanta()">🎅 Call Santa</button>
+  <button class="btn" onclick="startGame()">🕹️ Play Snowflake Game</button>
+  <button class="btn" onclick="stopGame()">⏹️ Stop Game</button>
+
+  <!-- Game -->
+  <div id="game">
+    <canvas id="gameCanvas" width="500" height="500"></canvas>
+    <p>Use ← → keys or tap to move Santa. Catch ❄️! Score 10 to win!</p>
+  </div>
+
+  <footer style="margin:30px 0;">Made with ❤️ by Klaide </footer>
+
+  <div id="santa">🎅 Merryyy Christmas! 🎅</div>
+
+  <script>
+    // Typing poem
+    const poem = "In this season of wonder, may joy drift like gentle snow, finding your doorstep and staying a while. May laughter ring through your halls, kindness gather at your table, and love glow brighter than a thousand stars. From my heart to yours — Merry Christmas, dear friend. ✨❄️🎅";
+    let i=0;
+    function typePoem(){
+      if(i<poem.length){
+        document.getElementById("message").textContent += poem.charAt(i);
+        i++;
+        setTimeout(typePoem,120);
+      } else {showSanta();}
+    }
+    typePoem();
+
+    // Snowflakes
+    function spawnSnowflake(){
+      const flake=document.createElement("div");
+      flake.className="snowflake";
+      flake.style.left=Math.random()*100+"vw";
+      flake.style.animationDuration=(Math.random()*5+7)+"s";
+      flake.textContent="❄️";
+      document.body.appendChild(flake);
+      setTimeout(()=>flake.remove(),14000);
+    }
+    setInterval(spawnSnowflake,600);
+
+    // Sparkles
+    function sparkleAt(x,y){
+      const s=document.createElement("div");
+      s.className="sparkle";
+      s.style.left=x+"px"; s.style.top=y+"px";
+      s.textContent="✨";
+      document.body.appendChild(s);
+      setTimeout(()=>s.remove(),1200);
+    }
+    document.addEventListener("click",e=>sparkleAt(e.pageX,e.pageY));
+    document.addEventListener("touchstart",e=>{
+      const t=e.touches[0]; sparkleAt(t.pageX,t.pageY);
+    });
+
+    // Santa
+    function showSanta(){
+      const santa=document.getElementById("santa");
+      santa.style.display="block";
+      setTimeout(()=>santa.style.display="none",12000);
+    }
+
+    // Game
+    const canvas=document.getElementById("gameCanvas");
+    const ctx=canvas.getContext("2d");
+    let santaX=220, flakes=[], score=0, gameRunning=false, gameInterval;
+
+    function drawSanta(x,y){
+      ctx.fillStyle="red"; ctx.fillRect(x,y,40,30);
+    }
+    function spawnFlake(){flakes.push({x:Math.random()*460,y:0});}
+    function drawFlakes(){
+      ctx.fillStyle="white";
+      flakes.forEach((f,i)=>{
+        ctx.fillText("❄️",f.x,f.y);
+        f.y+=3;
+        if(f.y>460 && f.x>santaX && f.x<santaX+40){
+          score++; flakes.splice(i,1);
+        }
+      });
+    }
+    function loop(){
+      if(!gameRunning)return;
+      ctx.clearRect(0,0,500,500);
+      drawSanta(santaX,460);
+      drawFlakes();
+      ctx.fillStyle="gold"; ctx.fillText("Score:"+score,10,20);
+      if(score>=10){ctx.fillText("You Win! 🎉",200,200);}
+      requestAnimationFrame(loop);
+    }
+    function startGame(){
+      gameRunning=true; score=0; flakes=[];
+      document.getElementById("game").style.display="block";
+      clearInterval(gameInterval);
+      gameInterval=setInterval(spawnFlake,1000);
+      loop();
+    }
+    function stopGame(){
+      gameRunning=false;
+      clearInterval(gameInterval);
+      ctx.clearRect(0,0,500,500);
+    }
+    document.addEventListener("keydown",e=>{
+      if(e.key==="ArrowLeft")santaX-=20;
+      if(e.key==="ArrowRight")santaX+=20;
+    });
+    canvas.addEventListener("click",e=>{
+      const rect=canvas.getBoundingClientRect();
+      const x=e.clientX-rect.left;
+      if(x < santaX) {
+        santaX = Math.max(0, santaX - 20);
+      } else {
+        santaX = Math.min(canvas.width - 40, santaX + 20);
+      }
+    });
+
+    canvas.addEventListener("touchstart",e=>{
+      const rect=canvas.getBoundingClientRect();
+      const x=e.touches[0].clientX - rect.left;
+      if(x < santaX) {
+        santaX = Math.max(0, santaX - 20);
+      } else {
+        santaX = Math.min(canvas.width - 40, santaX + 20);
+      }
+    });
+  </script>
+</body>
+</html>
